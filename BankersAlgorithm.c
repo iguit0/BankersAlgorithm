@@ -1,123 +1,154 @@
-#include <stdio.h>
- 
-int current[5][5], maximum_claim[5][5], available[5];
-int allocation[5] = {0, 0, 0, 0, 0};
-int maxres[5], running[5], safe = 0;
-int counter = 0, i, j, exec, resources, processes, k = 1;
- 
-int main(){
+#include<stdio.h>
+#include<stdlib.h>
+
+void print(int x[][10],int n,int m){
+	int i,j;
+	for(i=0;i<n;i++){
+		printf("\n");
+		for(j=0;j<m;j++){
+			printf("%d\t",x[i][j]);
+		}
+	}	
+}
+
+//Resource Request algorithm
+void res_request(int A[10][10],int N[10][10],int AV[10][10],int pid,int m)
+{
+	int reqmat[1][10];
+	int i;
+	printf("\n Enter additional request :- \n");
+	for(i=0;i<m;i++){
+		printf(" Request for resource %d : ",i+1);
+		scanf("%d",&reqmat[0][i]);
+	}
 	
-    printf("\nEnter number of processes: ");
-        scanf("%d", &processes);
- 
-        for (i = 0; i < processes; i++){
-            running[i] = 1;
-            counter++;
-        }
- 
-        printf("\nEnter number of resources: ");
-        scanf("%d", &resources);
- 
-        printf("\nEnter Claim Vector:");
-        for (i = 0; i < resources; i++){ 
-            scanf("%d", &maxres[i]);
-        }
- 
-       printf("\nEnter Allocated Resource Table:\n");
-        for (i = 0; i < processes; i++){
-            for(j = 0; j < resources; j++){
-              scanf("%d", &current[i][j]);
-            }
-        }
- 
-        printf("\nEnter Maximum Claim Table:\n");
-        for (i = 0; i < processes; i++){
-            for(j = 0; j < resources; j++){
-                    scanf("%d", &maximum_claim[i][j]);
-            }
-        }
- 
-    printf("\nThe Claim Vector is: ");
-        for (i = 0; i < resources; i++){
-            printf("\t%d", maxres[i]);
-    }
- 
-        printf("\nThe Allocated Resource Table:\n");
-        for (i = 0; i < processes; i++){
-            for (j = 0; j < resources; j++){
-                    printf("\t%d", current[i][j]);
-            }
-        printf("\n");
-        }
- 
-        printf("\nThe Maximum Claim Table:\n");
-        for (i = 0; i < processes; i++){
-            for (j = 0; j < resources; j++){
-                printf("\t%d", maximum_claim[i][j]);
-            }
-            printf("\n");
-        }
- 
-        for (i = 0; i < processes; i++){
-            for (j = 0; j < resources; j++) {
-                    allocation[j] += current[i][j];
-            }
-        }
- 
-        printf("\nAllocated resources:");
-        for (i = 0; i < resources; i++) {
-            printf("\t%d", allocation[i]);
-        }
- 
-        for (i = 0; i < resources; i++) {
-            available[i] = maxres[i] - allocation[i];
-    }
- 
-        printf("\nAvailable resources:");
-        for (i = 0; i < resources; i++) {
-            printf("\t%d", available[i]);
-        }
-        printf("\n");
- 
-        while (counter != 0) {
-            safe = 0;
-            for (i = 0; i < processes; i++) {
-                    if (running[i]) {
-                        exec = 1;
-                        for (j = 0; j < resources; j++) {
-                                if (maximum_claim[i][j] - current[i][j] > available[j]) {
-                                    exec = 0;
-                                    break;
-                                }
-                        }
-                        if (exec) {
-                                printf("\nProcess%d is executing\n", i + 1);
-                                running[i] = 0;
-                                counter--;
-                                safe = 1;
- 
-                                for (j = 0; j < resources; j++) 
-                    {
-                                    available[j] += current[i][j];
-                                }
-                            break;
-                        }
-                    }
-            }
-            if (!safe) {
-                    printf("\nThe processes are in unsafe state.\n");
-                    break;
-            } 
-        else {
-                    printf("\nThe process is in safe state");
-                    printf("\nAvailable vector:");
- 
-                    for (i = 0; i < resources; i++) {
-                        printf("\t%d", available[i]);
-                    }
- 
-                printf("\n");
-            }
-        }
-        return 0;
+	for(i=0;i<m;i++)
+		if(reqmat[0][i] > N[pid][i]){
+			printf("\n Error encountered.\n");
+			exit(0);
+	}
+
+	for(i=0;i<m;i++)
+		if(reqmat[0][i] > AV[0][i]){
+			printf("\n Resources unavailable.\n");
+			exit(0);
+		}
+	
+	for(i=0;i<m;i++){
+		AV[0][i]-=reqmat[0][i];
+		A[pid][i]+=reqmat[0][i];
+		N[pid][i]-=reqmat[0][i];
+	}
+}
+
+//Safety algorithm
+int safety(int A[][10],int N[][10],int AV[1][10],int n,int m,int a[]){
+
+	int i,j,k,x=0;
+	int F[10],W[1][10];
+	int pflag=0,flag=0;
+	for(i=0;i<n;i++)
+		F[i]=0;
+	for(i=0;i<m;i++)
+		W[0][i]=AV[0][i];
+
+	for(k=0;k<n;k++){
+		for(i=0;i<n;i++){
+			if(F[i] == 0){
+				flag=0;
+				for(j=0;j<m;j++){
+					if(N[i][j] > W[0][j])
+						flag=1;
+				}
+				if(flag == 0 && F[i] == 0){
+					for(j=0;j<m;j++)
+						W[0][j]+=A[i][j];
+					F[i]=1;
+					pflag++;
+					a[x++]=i;
+				}
+			}
+		}
+		if(pflag == n)
+			return 1;
+	}
+	return 0;
+}
+
+
+//Banker's Algorithm
+void accept(int A[][10],int N[][10],int M[10][10],int W[1][10],int *n,int *m){
+	int i,j;
+	printf("\n Enter total no. of processes : ");
+	scanf("%d",n);
+	printf("\n Enter total no. of resources : ");
+	scanf("%d",m);
+	for(i=0;i<*n;i++){
+		printf("\n Process %d\n",i+1);
+		for(j=0;j<*m;j++){
+			printf(" Allocation for resource %d : ",j+1);
+			scanf("%d",&A[i][j]);
+			printf(" Maximum for resource %d : ",j+1);
+			scanf("%d",&M[i][j]);
+		}
+	}
+	printf("\n Available resources : \n");
+	for(i=0;i<*m;i++){
+		printf(" Resource %d : ",i+1);
+		scanf("%d",&W[0][i]);
+	}
+
+	for(i=0;i<*n;i++)
+		for(j=0;j<*m;j++)
+			N[i][j]=M[i][j]-A[i][j];
+
+	printf("\n Allocation Matrix");
+	print(A,*n,*m);
+	printf("\n Maximum Requirement Matrix");
+	print(M,*n,*m);
+	printf("\n Need Matrix");
+	print(N,*n,*m);
+
+}
+
+int banker(int A[][10],int N[][10],int W[1][10],int n,int m){
+	int j,i,a[10];
+	j=safety(A,N,W,n,m,a);
+	if(j != 0 ){
+		printf("\n\n");
+		for(i=0;i<n;i++)
+		     printf(" P%d  ",a[i]);
+		printf("\n A safety sequence has been detected.\n");
+		return 1;
+	}else{
+		printf("\n Deadlock has occured.\n");
+		return 0;
+	}
+}
+
+
+int main(){
+	int ret;
+	int A[10][10];
+	int M[10][10];
+	int N[10][10];
+	int W[1][10];
+	int n,m,pid,ch;
+	printf("\n DEADLOCK AVOIDANCE USING BANKER'S ALGORITHM\n");
+	accept(A,N,M,W,&n,&m);
+	ret=banker(A,N,W,n,m);
+	if(ret !=0 ){
+		printf("\n Do you want make an additional request ? (1=Yes|0=No)");
+		scanf("%d",&ch);
+		if(ch == 1){
+			printf("\n Enter process no. : ");
+			scanf("%d",&pid);
+			res_request(A,N,W,pid-1,m);
+			ret=banker(A,N,W,n,m);
+			if(ret == 0 )
+				exit(0);
+		}
+	}else
+		exit(0);
+	return 0;
 }
