@@ -1,4 +1,4 @@
-# Banker's Algorithm :shipit::moneybag:
+# Banker's Algorithm :shipit:
 *The Banker's algorithm* is a **resource allocation** and **deadlock avoidance** algorithm developed by [Edsger W. Dijkstra](https://en.wikipedia.org/wiki/Edsger_W._Dijkstra) that tests for safety by **simulating** the allocation of predetermined maximum possible amounts of all resources, and then makes an ~~"s-state"~~ **safe state** check to test for possible **deadlock conditions** for all other pending activities, before deciding whether allocation should be allowed to continue.
 <p align="center"><img src="https://www.thecrazyprogrammer.com/wp-content/uploads/2016/07/Banker%E2%80%99s-Algorithm-in-C.jpg"></p>
 
