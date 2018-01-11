@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 import numpy as np # to run this make sure you have numpy library. To install run (on terminal): pip install numpy
 
-n_processes = int(input('Number of processes? '))
-n_resources = int(input('Number of resources? '))
+n_processes = int(input('Number of processes > '))
+n_resources = int(input('Number of resources > '))
 
 available_resources = [int(x) for x in input('Claim vector? ').split(' ')]
 
