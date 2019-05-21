@@ -1,6 +1,7 @@
 #include <stdio.h>
  
 int main(){
+      int b = 0;
       int count = 0, m, n, process, temp, resource; 
       int allocation_table[5] = {0, 0, 0, 0, 0};
       int available[5], current[5][5], maximum_claim[5][5];
